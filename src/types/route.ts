@@ -60,3 +60,40 @@ export function createRouteWithExtras<ContextExtras extends ContextExtra>() {
         return route;
     }
 }
+
+export function createRouteTemplate<ContextExtras extends ContextExtra>({
+                                                                            before = [],
+                                                                            after = [],
+                                                                            schema = {},
+                                                                        }: {
+    before?: Array<BeforeRoute<Route<any, any, any, any, any, any, any, ContextExtras>>>;
+    after?: Array<AfterRoute<Route<any, any, any, any, any, any, any, ContextExtras>>>;
+    schema?: {
+        body?: TSchema;
+        query?: TSchema;
+        params?: TSchema;
+        headers?: TSchema | Record<string, string>;
+        response?: AnyResponseSchema;
+    };
+} = {}) {
+    return function <
+        Body extends TSchema,
+        Query extends TSchema,
+        Params extends TSchema,
+        Headers extends TSchema | Record<string, string>,
+        Response extends AnyResponseSchema,
+        Before extends Array<BeforeRoute<Route<Body, Query, Params, Response, any, any, Headers, ContextExtras>>>,
+        After extends Array<AfterRoute<Route<Body, Query, Params, Response, any, any, Headers, ContextExtras>>>,
+    >(route: Route<Body, Query, Params, Response, Before, After, Headers, ContextExtras>):
+        Route<Body, Query, Params, Response, Before, After, Headers, ContextExtras> {
+        return {
+            ...route,
+            before: [...before, ...route.before as any] as any,
+            after: [...after, ...route.after as any] as any,
+            schema: {
+                ...schema,
+                ...route.schema,
+            } as any,
+        };
+    }
+}
