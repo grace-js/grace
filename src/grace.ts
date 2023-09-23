@@ -334,7 +334,9 @@ export class Grace {
 
     private async handleError(request: Request, error: APIError): Promise<PossibleResponses<any>> {
         if (this.error.length === 0) {
-            console.error(error);
+            if (error.code === 500 || typeof error.code !== 'number') {
+                console.error(`There was an error while handling a request: ${error.code ?? 500} - ${error.message ?? 'Internal server error'}`);
+            }
         }
 
         for (const handler of this.error) {
