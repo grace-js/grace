@@ -318,9 +318,5 @@ export class Grace {
 }
 
 export function createGrace(): Grace {
-    const framework = new Grace();
-
-    framework.registerRoutes(join(__dirname, 'routes/**/*.{js,ts,jsx,tsx}'));
-
-    return framework;
+    return new Grace();
 }
