@@ -80,7 +80,7 @@ export class Grace {
     }
 
     public registerRoutes(path: string): Grace {
-        const pathWithoutGlob = path.replace(/\*{2}\/\*{2}|\/\*\.\{[^}]+\}/g, '');
+        const pathWithoutGlob = path.replace(/\*\.?[\w]*\*?/g, '');
 
         for (const pathname of globSync(path)) {
             const route = require(pathname);
