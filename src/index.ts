@@ -14,7 +14,14 @@ export {
     createRouteWithExtras,
     createBeforeRoute,
     createAfterRoute,
-    t
+    t,
+    type File,
+    type Files,
+    type FileMimeType,
+    type FileSize,
+    type MaybeArray,
+    convertToBytes,
+    validateFile
 } from './types';
 
 export {

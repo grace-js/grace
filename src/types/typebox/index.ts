@@ -89,10 +89,7 @@ declare module '@sinclair/typebox' {
     interface TypeBuilder {
         ObjectString: typeof ExtendedType.ObjectString
         Numeric: typeof ExtendedType.Numeric
-        // TODO: Fix this
-        // @ts-ignore
         File: typeof ExtendedType.File
-        // @ts-ignore
         Files: typeof ExtendedType.Files
         Nullable: typeof ExtendedType.Nullable
         MaybeEmpty: typeof ExtendedType.MaybeEmpty
@@ -109,6 +106,7 @@ declare module '@sinclair/typebox' {
 
 Type.ObjectString = ExtendedType.ObjectString;
 Type.Numeric = ExtendedType.Numeric;
+
 Type.File = (arg = {}) => ExtendedType.File({
     default: 'File',
     ...arg,
@@ -131,3 +129,16 @@ Type.Nullable = (schema) => ExtendedType.Nullable(schema);
 Type.MaybeEmpty = ExtendedType.MaybeEmpty;
 
 export {Type as t};
+export {
+    type File,
+    type Files,
+    type FileMimeType,
+    type FileSize,
+    type MaybeArray,
+} from './types';
+
+export  {
+    convertToBytes,
+    validateFile,
+} from './validate-file';
+
