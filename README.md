@@ -16,3 +16,7 @@ It streamlines backend development, allowing you to build scalable, efficient an
 ### Documentation
 
 You can find the documentation at [docs.gracejs.dev](https://docs.gracejs.dev).
+
+### Discord
+
+Join our Discord server at [discord.gg/b2UbbRgeqv](https://discord.gg/b2UbbRgeqv).
