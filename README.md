@@ -19,4 +19,4 @@ You can find the documentation at [docs.gracejs.dev](https://docs.gracejs.dev).
 
 ### Discord
 
-Join our Discord server at [discord.gg/b2UbbRgeqv](https://discord.gg/b2UbbRgeqv).
+Join our Discord server at [discord.gg/bTwzePh7Qr](https://discord.gg/bTwzePh7Qr).
