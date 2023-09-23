@@ -4,7 +4,6 @@ import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {Trie} from "route-trie";
-import {join} from "path/posix";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -20,9 +19,18 @@ export class Grace {
     public after: AfterRequest[] = [];
     public error: ErrorRequest[] = [];
     private trie = new Trie();
+    private debug: boolean;
+
+    constructor({debug = true}: {
+        debug: boolean
+    } = {debug: true}) {
+        this.debug = debug;
+    }
 
     public registerPlugin(plugin: FrameworkPlugin): Grace {
         plugin(this);
+
+        this.debugLog(`🔌 Registered plugin`);
 
         return this;
     }
@@ -30,17 +38,23 @@ export class Grace {
     public registerBefore(handler: BeforeRequest): Grace {
         this.before.push(handler);
 
+        this.debugLog(`🔌 Registered before handler`);
+
         return this;
     }
 
     public registerAfter(handler: AfterRequest): Grace {
         this.after.push(handler);
 
+        this.debugLog(`🔌 Registered after handler`);
+
         return this;
     }
 
     public registerError(handler: ErrorRequest): Grace {
         this.error.push(handler);
+
+        this.debugLog(`🔌 Registered error handler`);
 
         return this;
     }
@@ -58,6 +72,8 @@ export class Grace {
 
         const path = route.path.replace(/\/+/g, '/');
 
+        this.debugLog(`📦 Registered route ${route.method} ${path}`);
+
         this.trie.define(path).handle(route.method, route);
 
         return this;
@@ -71,6 +87,9 @@ export class Grace {
                 if (!route.default.path || !route.default.method) {
                     const extension = pathname.split('.').pop();
                     const split = pathname.split('.')[0].split('/');
+
+                    this.debugLog(`Registering route ${pathname} - ${split}`);
+
                     const method = split.pop()?.toUpperCase();
                     let name = '';
 
@@ -87,6 +106,8 @@ export class Grace {
                     if (!method || !name) {
                         throw new Error('Invalid route path');
                     }
+
+                    this.debugLog(`Registering route ${pathname} - ${name} ${method}`);
 
                     route.default.path = name;
                     route.default.method = method as any;
@@ -315,8 +336,16 @@ export class Grace {
             }
         };
     }
+
+    private debugLog(message: string): void {
+        if (this.debug) {
+            console.log(message);
+        }
+    }
 }
 
-export function createGrace(): Grace {
-    return new Grace();
+export function createGrace({debug = true}: {
+    debug: boolean
+} = {debug: true}): Grace {
+    return new Grace({debug});
 }
