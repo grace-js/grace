@@ -67,7 +67,7 @@ export class Grace {
         for (const pathname of globSync(path)) {
             const route = require(pathname);
 
-            if (route.default && route.default.method) {
+            if (route.default && route.default.handler) {
                 if (!route.default.path || !route.default.method) {
                     const extension = pathname.split('.').pop();
                     const split = pathname.split('.')[0].split('/');
