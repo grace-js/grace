@@ -1,0 +1,13 @@
+node_modules
+src
+test
+.gitignore
+.npmignore
+build.ts
+bun.lockb
+README.md
+.idea
+tsconfig.json
+tsconfig.cjs.json
+tsconfig.esm.json
+tsconfig.test.json
