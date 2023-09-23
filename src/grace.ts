@@ -333,6 +333,10 @@ export class Grace {
     }
 
     private async handleError(request: Request, error: APIError): Promise<PossibleResponses<any>> {
+        if (this.error.length === 0) {
+            console.error(error);
+        }
+
         for (const handler of this.error) {
             const result = await handler(request, error);
 
