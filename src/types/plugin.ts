@@ -1,3 +1,3 @@
-import {Grace} from "../grace.ts";
+import {Grace} from "../grace";
 
 export type FrameworkPlugin = (app: Grace) => Grace;
