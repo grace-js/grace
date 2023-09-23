@@ -320,7 +320,7 @@ export class Grace {
 export function createGrace(): Grace {
     const framework = new Grace();
 
-    framework.registerRoutes(join(import.meta.dir, 'routes/**/*.{js,ts,jsx,tsx}'));
+    framework.registerRoutes(join(__dirname, 'routes/**/*.{js,ts,jsx,tsx}'));
 
     return framework;
 }
