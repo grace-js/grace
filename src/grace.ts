@@ -85,16 +85,17 @@ export class Grace {
 
             if (route.default && route.default.handler) {
                 if (!route.default.path || !route.default.method) {
-                    const extension = pathname.split('.').pop();
-                    const split = pathname.split('.')[0].split('/');
+                    const extension = pathname.replace(path, '').split('.').pop();
+                    const split = pathname.replace(path, '').split('.')[0].split('/');
 
                     this.debugLog(`Registering route ${pathname} - ${split}`);
 
                     const method = split.pop()?.toUpperCase();
+                    const remaining = split.reverse();
                     let name = '';
 
                     while (split.length > 0) {
-                        const part = split.pop();
+                        const part = remaining.pop();
 
                         if (!part) {
                             continue;
