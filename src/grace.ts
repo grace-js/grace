@@ -80,15 +80,15 @@ export class Grace {
     }
 
     public registerRoutes(path: string): Grace {
+        const pathWithoutGlob = path.replace(/\*{2}\/\*{2}|\/\*\.\{[^}]+\}/g, '');
+
         for (const pathname of globSync(path)) {
             const route = require(pathname);
 
             if (route.default && route.default.handler) {
                 if (!route.default.path || !route.default.method) {
-                    console.log('pathname', pathname);
-                    console.log('path', path);
-                    const extension = pathname.replace(path, '').split('.').pop();
-                    const split = pathname.replace(path, '').split('.')[0].split('/');
+                    const extension = pathname.replace(pathWithoutGlob, '').split('.').pop();
+                    const split = pathname.replace(pathWithoutGlob, '').split('.')[0].split('/');
 
                     this.debugLog(`Registering route ${pathname} - ${split}`);
 
