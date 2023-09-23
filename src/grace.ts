@@ -98,7 +98,7 @@ export class Grace {
 
                     const method = split.pop()?.toUpperCase();
                     const remaining = split.reverse();
-                    let name = '';
+                    let name = '/';
 
                     while (split.length > 0) {
                         const part = remaining.pop();
@@ -107,11 +107,16 @@ export class Grace {
                             continue;
                         }
 
+                        if (name === '/') {
+                            name += part;
+                            continue;
+                        }
+
                         name += '/' + part;
                     }
 
                     if (!method || !name) {
-                        throw new Error('Invalid route path');
+                        throw new Error('Invalid route path' + pathname.replace(pathWithoutGlob, ''));
                     }
 
                     this.debugLog(`Registering route ${pathname} - ${name} ${method}`);
