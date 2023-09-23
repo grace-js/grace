@@ -85,6 +85,8 @@ export class Grace {
 
             if (route.default && route.default.handler) {
                 if (!route.default.path || !route.default.method) {
+                    console.log('pathname', pathname);
+                    console.log('path', path);
                     const extension = pathname.replace(path, '').split('.').pop();
                     const split = pathname.replace(path, '').split('.')[0].split('/');
 
