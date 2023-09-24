@@ -1,7 +1,7 @@
 {
   "name": "@grace-js/grace",
   "description": "An opinionated framework",
-  "version": "0.3.7",
+  "version": "0.3.8-beta.3",
   "author": {
     "name": "Fumaz",
     "url": "https://fumaz.dev",
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.15",
+    "fast-querystring": "^1.1.2",
     "glob": "^10.3.5",
     "route-trie": "^3.0.0"
   }

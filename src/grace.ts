@@ -4,6 +4,8 @@ import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {Trie} from "route-trie";
+import {TypeCompiler} from "@sinclair/typebox/compiler";
+import fastQueryString from "fast-querystring";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -226,58 +228,66 @@ export class Grace {
             const rawParameters = matched.params;
             let parameters: any;
 
+            for (const key in rawParameters) {
+                try {
+                    rawParameters[key] = JSON.parse(rawParameters[key]);
+                } catch (e) {
+                }
+            }
+
             if (route?.schema?.params) {
                 try {
-                    parameters = Value.Decode(route?.schema?.params, rawParameters);
+                    parameters = Value.Decode(route.schema.params, rawParameters);
                 } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
 
-            let body: any;
+            let body: any = undefined;
             const hasBody = route?.schema?.body != null;
 
-            if (request.headers.get('Content-Type') === 'multipart/form-data') {
-                const formData = await request.formData();
-                const rawBody: {
-                    [key: string]: any
-                } = {};
+            if (request.method !== 'GET') {
+                if (request.headers.get('Content-Type') === 'multipart/form-data') {
+                    const formData = await request.formData();
+                    const rawBody: {
+                        [key: string]: any
+                    } = {};
 
-                for (let [key, value] of formData.entries()) {
-                    rawBody[key] = value;
-                }
-
-                if (hasBody) {
-                    try {
-                        body = Value.Decode(route?.schema?.body, rawBody);
-                    } catch (e) {
-                        throw new APIError(400, {message: 'Bad request'});
+                    for (let [key, value] of formData.entries()) {
+                        rawBody[key] = value;
                     }
-                }
-            } else {
-                let rawBody: any;
 
-                try {
-                    rawBody = await request.json();
-                } catch (e) {
-                }
+                    if (hasBody) {
+                        try {
+                            body = Value.Decode(route!.schema!.body, rawBody);
+                        } catch (e) {
+                            throw new APIError(400, {message: 'Bad request'});
+                        }
+                    }
+                } else {
+                    let rawBody: any;
 
-                if (hasBody) {
                     try {
-                        body = Value.Decode(route?.schema?.body, rawBody);
+                        rawBody = await request.json();
                     } catch (e) {
-                        throw new APIError(400, {message: 'Bad request'});
+                    }
+
+                    if (hasBody) {
+                        try {
+                            body = Value.Decode(route!.schema!.body, rawBody);
+                        } catch (e) {
+                            throw new APIError(400, {message: 'Bad request'});
+                        }
                     }
                 }
             }
 
-            const urlSearchParams = new URLSearchParams(url.search);
-            const rawQuery = Object.fromEntries(urlSearchParams.entries());
+            const rawQuery = fastQueryString.parse(url.search);
             let query: any;
 
             if (route?.schema?.query) {
                 try {
-                    query = Value.Decode(route?.schema?.query, rawQuery);
+                    query = Value.Decode(route.schema.query, rawQuery);
                 } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
@@ -288,7 +298,7 @@ export class Grace {
 
             if (route?.schema?.headers) {
                 try {
-                    ctxHeaders = Value.Decode(route?.schema?.headers, rawHeaders);
+                    ctxHeaders = Value.Decode(route.schema.headers, rawHeaders);
                 } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }

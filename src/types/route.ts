@@ -2,6 +2,7 @@ import {Static, TSchema} from "@sinclair/typebox";
 import {AnyResponseSchema, PossibleResponses} from "./response";
 import {Context} from "./context";
 import {AfterRoute, BeforeRoute, ContextExtra} from "./middleware";
+import {TypeCheck} from "@sinclair/typebox/compiler";
 
 export type Route<
     Body extends TSchema,
