@@ -14,7 +14,7 @@ import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {TSchema} from "@sinclair/typebox";
-import {getPath, getQueryParams} from "./utils/url.ts";
+import {getPath, getQueryParams} from "./utils/url";
 import {Trie} from "route-trie";
 
 export type BeforeRequest = (request: Request) => Promise<{
