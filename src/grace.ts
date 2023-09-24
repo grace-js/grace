@@ -31,7 +31,7 @@ export class Grace {
     public after: AfterRequest[] = [];
     public error: ErrorRequest[] = [];
     private router = new Trie();
-    private debug: boolean;
+    private readonly debug: boolean;
 
     constructor({debug = false}: {
         debug: boolean
@@ -186,31 +186,28 @@ export class Grace {
 
     public async handle(request: Request): Promise<Response> {
         const response = await this.handleInternally(request);
-        const code = convertStatusCode(response.code);
-        const body = response.body;
-        const headers = response.headers;
 
-        if (body instanceof Blob) {
-            return new Response(body, {
-                status: code,
-                headers
-            });
-        }
+        if (typeof response.body === 'object') {
+            if (response.body instanceof Blob) {
+                return new Response(response.body, {
+                    status: convertStatusCode(response.code),
+                    headers: response.headers
+                });
+            }
 
-        if (typeof body === 'object') {
-            return new Response(JSON.stringify(body), {
-                status: code,
+            return new Response(JSON.stringify(response.body), {
+                status: convertStatusCode(response.code),
                 headers: {
-                    ...headers,
+                    ...response.headers,
                     'Content-Type': 'application/json'
                 }
             });
         }
 
-        return new Response(body, {
-            status: code,
+        return new Response(response.body, {
+            status: convertStatusCode(response.code),
             headers: {
-                ...headers,
+                ...response.headers,
                 'Content-Type': 'text/plain'
             }
         });
@@ -218,7 +215,7 @@ export class Grace {
 
     public async handleInternally(request: Request): Promise<PossibleResponses<any>> {
         try {
-            let headers: any = {};
+            let headers: Record<string, string> = {};
 
             for (const handler of this.before) {
                 const result = await handler(request);
@@ -256,7 +253,7 @@ export class Grace {
                 }
             }
 
-            let body: any = undefined;
+            let body: any;
             const hasBody = route?.schema?.body != null;
 
             if (request.method !== 'GET') {
@@ -311,10 +308,9 @@ export class Grace {
             }
 
             const rawHeaders: any = {};
-
-            for (const [key, value] of request.headers.entries()) {
+            request.headers.forEach((value, key) => {
                 rawHeaders[key] = value;
-            }
+            });
 
             let ctxHeaders: any = rawHeaders;
 

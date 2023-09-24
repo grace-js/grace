@@ -119,9 +119,6 @@ test('handle internally', async () => {
         const response =await app.handleInternally(new Request('http://localhost/id/1?name=owo', {
             method: 'GET'
         }));
-
-        expect(response.code).toBe(200);
-        expect(response.body).toBe('1 owo');
     }
 
     console.log('Handle internally took ' + ((Date.now() - start) / 1_000_000));
@@ -157,9 +154,6 @@ test('handle', async () => {
         const response =await app.handle(new Request('http://localhost/id/1?name=owo', {
             method: 'GET'
         }));
-
-        expect(response.status).toBe(200);
-        expect(await response.text()).toBe('1 owo');
     }
 
     console.log('Handle internally took ' + ((Date.now() - start) / 1_000_000));

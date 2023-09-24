@@ -20,7 +20,7 @@ export const getQueryParams = (url: string): Record<string, string> => {
 
     for (const param of query.split('&')) {
         const [key, value] = param.split('=');
-        params[key] = value;
+        params[decodeURIComponent(key)] = decodeURIComponent(value);
     }
 
     return params;
