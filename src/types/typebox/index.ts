@@ -77,7 +77,6 @@ export const ExtendedType = {
 declare module '@sinclair/typebox' {
     interface TypeBuilder {
         ObjectString: typeof ExtendedType.ObjectString
-        Numeric: typeof ExtendedType.Numeric
         File: typeof ExtendedType.File
         Files: typeof ExtendedType.Files
         Nullable: typeof ExtendedType.Nullable
