@@ -191,7 +191,7 @@ export class Grace {
                 ...headers,
                 'Content-Type': 'text/plain'
             }
-        })
+        });
     }
 
     private async handleInternally(request: Request): Promise<PossibleResponses<any>> {
@@ -210,7 +210,6 @@ export class Grace {
             }
 
             const url = new URL(request.url);
-            const pathname = url.pathname;
             const matched = this.trie.match(url.pathname);
             const node = matched.node;
 
