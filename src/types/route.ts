@@ -30,8 +30,8 @@ export type Route<
 
 export type AnyRoute = Route<any, any, any, any, any, any, any, any, any>;
 
-export type InferContext<R extends Route<TSchema, TSchema, TSchema, AnyResponseSchema, any, any>> = R extends Route<any, any, any, any, any, any, any, any, infer ContextSchema> ? ContextSchema : never;
-export type InferResponse<R extends Route<TSchema, TSchema, TSchema, AnyResponseSchema, any, any>> = R extends Route<any, any, any, infer Response, any, any, any, any, any> ? Response : never;
+export type InferContext<R extends AnyRoute> = R extends Route<any, any, any, any, any, any, any, any, infer ContextSchema> ? ContextSchema : never;
+export type InferResponse<R extends AnyRoute> = R extends Route<any, any, any, infer Response, any, any, any, any, any> ? Response : never;
 
 export function createRoute<
     Body extends TSchema,

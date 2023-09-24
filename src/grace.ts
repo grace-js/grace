@@ -1,9 +1,20 @@
 import {Value} from "@sinclair/typebox/value";
-import {AnyRoute, APIError, convertStatusCode, PossibleResponses, Route} from "./types";
+import {
+    AfterRoute,
+    AnyResponseSchema,
+    AnyRoute,
+    APIError,
+    BeforeRoute,
+    ContextExtra,
+    convertStatusCode,
+    PossibleResponses,
+    Route
+} from "./types";
 import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {Trie} from "route-trie";
+import {TSchema} from "@sinclair/typebox";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -59,7 +70,16 @@ export class Grace {
         return this;
     }
 
-    public registerRoute(route: AnyRoute): Grace {
+    public registerRoute<
+        Body extends TSchema,
+        Query extends TSchema,
+        Params extends TSchema,
+        Headers extends TSchema | Record<string, string>,
+        Response extends AnyResponseSchema,
+        ContextExtras extends ContextExtra,
+        Before extends Array<BeforeRoute<Route<Body, Query, Params, Response, any, any, Headers, ContextExtras>>>,
+        After extends Array<AfterRoute<Route<Body, Query, Params, Response, any, any, Headers, ContextExtras>>>,
+    >(route: Route<Body, Query, Params, Response, Before, After, Headers, ContextExtras>): Grace {
         this.routes.push(route);
 
         if (!route.method) {
@@ -134,7 +154,8 @@ export class Grace {
         return this;
     }
 
-    public listen(port: number, callback: () => void | Promise<void>): Grace {
+    public listen(port: number, callback: () => void | Promise<void> = () => {
+    }): Grace {
         const framework = this;
 
         Bun.serve({
@@ -175,7 +196,7 @@ export class Grace {
             });
         }
 
-        if (typeof body === 'object' || Array.isArray(body)) {
+        if (typeof body === 'object') {
             return new Response(JSON.stringify(body), {
                 status: code,
                 headers: {
@@ -194,7 +215,7 @@ export class Grace {
         });
     }
 
-    private async handleInternally(request: Request): Promise<PossibleResponses<any>> {
+    public async handleInternally(request: Request): Promise<PossibleResponses<any>> {
         try {
             let headers: any = {};
 
@@ -227,16 +248,9 @@ export class Grace {
             let parameters: any = rawParameters;
 
             if (route?.schema?.params) {
-                for (const key in rawParameters) {
-                    try {
-                        rawParameters[key] = JSON.parse(rawParameters[key]);
-                    } catch (e) {
-                    }
-                }
+                parameters = Value.Convert(route.schema.params, rawParameters);
 
-                try {
-                    parameters = Value.Decode(route.schema.params, rawParameters);
-                } catch (e) {
+                if (!Value.Check(route.schema.params, parameters)) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
@@ -288,27 +302,20 @@ export class Grace {
             let query: any = rawQuery;
 
             if (route?.schema?.query) {
-                for (const key in rawQuery) {
-                    try {
-                        rawQuery[key] = JSON.parse(rawQuery[key]);
-                    } catch (e) {
-                    }
-                }
+                query = Value.Convert(route.schema.query, rawQuery);
 
-                try {
-                    query = Value.Decode(route.schema.query, rawQuery);
-                } catch (e) {
+                if (!Value.Check(route.schema.query, query)) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
 
             const rawHeaders = Object.fromEntries(request.headers.entries());
-            let ctxHeaders: any;
+            let ctxHeaders: any = rawHeaders;
 
             if (route?.schema?.headers) {
-                try {
-                    ctxHeaders = Value.Decode(route.schema.headers, rawHeaders);
-                } catch (e) {
+                ctxHeaders = Value.Convert(route.schema.headers, rawHeaders);
+
+                if (!Value.Check(route.schema.headers, ctxHeaders)) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }

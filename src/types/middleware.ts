@@ -1,10 +1,10 @@
 import {AnyResponseSchema, PossibleResponses} from "./response";
-import {InferContext, InferResponse, Route as RouteSchema} from "./route";
+import {AnyRoute, InferContext, InferResponse, Route as RouteSchema} from "./route";
 import {TSchema} from "@sinclair/typebox";
 
 export type ContextExtra = any;
-export type BeforeRoute<Route extends RouteSchema<TSchema, TSchema, TSchema, AnyResponseSchema, any, any, TSchema | Record<string, string>>> = (context: InferContext<Route>) => Promise<PossibleResponses<InferResponse<Route>> | void>;
-export type AfterRoute<Route extends RouteSchema<TSchema, TSchema, TSchema, AnyResponseSchema, any, any, TSchema | Record<string, string>>> = (context: InferContext<Route>, response: any) => Promise<void>;
+export type BeforeRoute<Route extends AnyRoute> = (context: InferContext<Route>) => Promise<PossibleResponses<InferResponse<Route>> | void>;
+export type AfterRoute<Route extends AnyRoute> = (context: InferContext<Route>, response: any) => Promise<void>;
 
 export function createBeforeRoute<ContextExtras extends ContextExtra = {}>() {
     return <
