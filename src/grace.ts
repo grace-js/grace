@@ -270,9 +270,9 @@ export class Grace {
                     }
 
                     if (hasBody) {
-                        try {
-                            body = Value.Decode(route!.schema!.body, rawBody);
-                        } catch (e) {
+                        body = Value.Convert(route!.schema!.body, rawBody);
+
+                        if (!Value.Check(route!.schema!.body, body)) {
                             throw new APIError(400, {message: 'Bad request'});
                         }
                     } else {
@@ -298,7 +298,12 @@ export class Grace {
                 }
             }
 
-            const rawQuery = Object.fromEntries(url.searchParams);
+            const rawQuery: Record<string, any> = {};
+
+            for (const [key, value] of url.searchParams.entries()) {
+                rawQuery[key] = value;
+            }
+
             let query: any = rawQuery;
 
             if (route?.schema?.query) {
@@ -309,7 +314,12 @@ export class Grace {
                 }
             }
 
-            const rawHeaders = Object.fromEntries(request.headers.entries());
+            const rawHeaders: any = {};
+
+            for (const [key, value] of request.headers.entries()) {
+                rawHeaders[key] = value;
+            }
+
             let ctxHeaders: any = rawHeaders;
 
             if (route?.schema?.headers) {

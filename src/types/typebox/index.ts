@@ -44,17 +44,6 @@ const Files = TypeSystem.Type<File[], Files>(
 );
 
 export const ExtendedType = {
-    Numeric: (property?: NumericOptions<number>) => Type.Transform(Type.Union([Type.String(), Type.Number(property)]))
-        .Decode((value) => {
-            const number = +value;
-
-            if (isNaN(number)) {
-                return value;
-            }
-
-            return number;
-        })
-        .Encode((value) => value) as any as TNumber,
     ObjectString: <T extends TProperties>(properties: T, options?: ObjectOptions) => Type.Transform(Type.Union([Type.String(), Type.Object(properties, options)]))
         .Decode((value) => {
             if (typeof value === 'string') {
@@ -105,7 +94,6 @@ declare module '@sinclair/typebox' {
 }
 
 Type.ObjectString = ExtendedType.ObjectString;
-Type.Numeric = ExtendedType.Numeric;
 
 Type.File = (arg = {}) => ExtendedType.File({
     default: 'File',

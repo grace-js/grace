@@ -124,7 +124,7 @@ test('handle internally', async () => {
         expect(response.body).toBe('1 owo');
     }
 
-    console.log('Handle internally took ' + (Date.now() - start));
+    console.log('Handle internally took ' + ((Date.now() - start) / 1_000_000));
 });
 
 test('handle', async () => {
@@ -162,5 +162,5 @@ test('handle', async () => {
         expect(await response.text()).toBe('1 owo');
     }
 
-    console.log('Handle internally took ' + (Date.now() - start));
+    console.log('Handle internally took ' + ((Date.now() - start) / 1_000_000));
 });
