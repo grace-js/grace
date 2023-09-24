@@ -175,13 +175,23 @@ export class Grace {
             });
         }
 
-        return new Response(JSON.stringify(body), {
+        if (typeof body === 'object' || Array.isArray(body)) {
+            return new Response(JSON.stringify(body), {
+                status: code,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        return new Response(body, {
             status: code,
             headers: {
                 ...headers,
-                'Content-Type': 'application/json'
+                'Content-Type': 'text/plain'
             }
-        });
+        })
     }
 
     private async handleInternally(request: Request): Promise<PossibleResponses<any>> {
