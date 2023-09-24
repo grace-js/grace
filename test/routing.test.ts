@@ -1,11 +1,10 @@
 import {Trie} from "route-trie";
 import {expect, test} from "bun:test";
-import {TypeCompiler} from "@sinclair/typebox/compiler";
 import {Type} from "@sinclair/typebox";
 import {createGrace, createRoute, t} from "../src";
 import {Value} from "@sinclair/typebox/value";
 
-test('routing speed', () => {
+test('old routing speed', () => {
     const trie = new Trie();
 
     for (let i = 0; i < 10000; i++) {
@@ -22,8 +21,9 @@ test('routing speed', () => {
         expect(handler).toBe('owo');
     }
 
-    console.log('Routing took ' + (Date.now() - start));
+    console.log('Old Trie Routing took ' + ((Date.now() - start) / 1_000_000));
 });
+
 //
 // test('typebox decode', () => {
 //     const Schema = Type.Object({

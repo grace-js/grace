@@ -13,8 +13,9 @@ import {
 import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
-import {Trie} from "route-trie";
 import {TSchema} from "@sinclair/typebox";
+import {getPath, getQueryParams} from "./utils/url.ts";
+import {Trie} from "route-trie";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -29,12 +30,12 @@ export class Grace {
     public before: BeforeRequest[] = [];
     public after: AfterRequest[] = [];
     public error: ErrorRequest[] = [];
-    private trie = new Trie();
+    private router = new Trie();
     private debug: boolean;
 
-    constructor({debug = true}: {
+    constructor({debug = false}: {
         debug: boolean
-    } = {debug: true}) {
+    } = {debug: false}) {
         this.debug = debug;
     }
 
@@ -94,7 +95,7 @@ export class Grace {
 
         this.debugLog(`📦 Registered route ${route.method} ${path}`);
 
-        this.trie.define(path).handle(route.method, route);
+        this.router.define(path).handle(route.method, route);
 
         return this;
     }
@@ -230,15 +231,15 @@ export class Grace {
                 }
             }
 
-            const url = new URL(request.url);
-            const matched = this.trie.match(url.pathname);
+            const pathname = getPath(request.url);
+            const matched = this.router.match(pathname);
             const node = matched.node;
 
             if (!node) {
                 throw new APIError(404, {message: 'Not found'});
             }
 
-            const route: Route<any, any, any, any, any, any, any> = node.getHandler(request.method);
+            const route: AnyRoute = node.getHandler(request.method);
 
             if (!route) {
                 throw new APIError(404, {message: 'Not found'});
@@ -298,12 +299,7 @@ export class Grace {
                 }
             }
 
-            const rawQuery: Record<string, any> = {};
-
-            for (const [key, value] of url.searchParams.entries()) {
-                rawQuery[key] = value;
-            }
-
+            const rawQuery: Record<string, any> = getQueryParams(request.url);
             let query: any = rawQuery;
 
             if (route?.schema?.query) {
@@ -407,8 +403,8 @@ export class Grace {
     }
 }
 
-export function createGrace({debug = true}: {
+export function createGrace({debug = false}: {
     debug: boolean
-} = {debug: true}): Grace {
+} = {debug: false}): Grace {
     return new Grace({debug});
 }
