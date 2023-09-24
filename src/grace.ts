@@ -4,8 +4,6 @@ import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {Trie} from "route-trie";
-import {TypeCompiler} from "@sinclair/typebox/compiler";
-import fastQueryString from "fast-querystring";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -226,16 +224,16 @@ export class Grace {
             }
 
             const rawParameters = matched.params;
-            let parameters: any;
-
-            for (const key in rawParameters) {
-                try {
-                    rawParameters[key] = JSON.parse(rawParameters[key]);
-                } catch (e) {
-                }
-            }
+            let parameters: any = rawParameters;
 
             if (route?.schema?.params) {
+                for (const key in rawParameters) {
+                    try {
+                        rawParameters[key] = JSON.parse(rawParameters[key]);
+                    } catch (e) {
+                    }
+                }
+
                 try {
                     parameters = Value.Decode(route.schema.params, rawParameters);
                 } catch (e) {
@@ -263,6 +261,8 @@ export class Grace {
                         } catch (e) {
                             throw new APIError(400, {message: 'Bad request'});
                         }
+                    } else {
+                        body = rawBody;
                     }
                 } else {
                     let rawBody: any;
@@ -278,14 +278,23 @@ export class Grace {
                         } catch (e) {
                             throw new APIError(400, {message: 'Bad request'});
                         }
+                    } else {
+                        body = rawBody;
                     }
                 }
             }
 
-            const rawQuery = fastQueryString.parse(url.search);
-            let query: any;
+            const rawQuery = Object.fromEntries(url.searchParams);
+            let query: any = rawQuery;
 
             if (route?.schema?.query) {
+                for (const key in rawQuery) {
+                    try {
+                        rawQuery[key] = JSON.parse(rawQuery[key]);
+                    } catch (e) {
+                    }
+                }
+
                 try {
                     query = Value.Decode(route.schema.query, rawQuery);
                 } catch (e) {

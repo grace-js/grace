@@ -2,7 +2,6 @@ import {Static, TSchema} from "@sinclair/typebox";
 import {AnyResponseSchema, PossibleResponses} from "./response";
 import {Context} from "./context";
 import {AfterRoute, BeforeRoute, ContextExtra} from "./middleware";
-import {TypeCheck} from "@sinclair/typebox/compiler";
 
 export type Route<
     Body extends TSchema,
@@ -13,7 +12,7 @@ export type Route<
     After extends Array<AfterRoute<Route<Body, Query, Params, Response, any, any, Headers, ContextExtras>>>,
     Headers extends TSchema | Record<string, string> = Record<string, string>,
     ContextExtras = ContextExtra,
-    ContextSchema = Context<Static<Body>, Static<Query>, Static<Params>, Headers extends TSchema ? Static<Headers> : Headers, ContextExtras>
+    ContextSchema = Context<Body extends TSchema ? Static<Body> : any, Query extends TSchema ? Static<Query> : Record<string, string>, Params extends TSchema ? Static<Params> : Record<string, string>, Headers extends TSchema ? Static<Headers> : Headers, ContextExtras>
 > = {
     method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     path?: string;

@@ -27,9 +27,9 @@ export {
 export {
     Grace,
     createGrace,
-    BeforeRequest,
-    AfterRequest,
-    ErrorRequest
+    type BeforeRequest,
+    type AfterRequest,
+    type ErrorRequest
 } from './grace';
 
 export {
