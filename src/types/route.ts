@@ -23,6 +23,12 @@ export type Route<
         headers?: Headers;
         response?: Response;
     },
+    compiledSchema?: {
+        body?: (input: unknown) => Static<Body>;
+        query?: (input: unknown) => Static<Query>;
+        params?: (input: unknown) => Static<Params>;
+        headers?: (input: unknown) => any;
+    },
     before?: Before,
     after?: After,
     handler: (context: ContextSchema) => Promise<PossibleResponses<Response>>

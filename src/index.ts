@@ -37,3 +37,7 @@ export {
     logger,
     sentry
 } from './plugins';
+
+export {
+    exportOpenAPI
+} from './utils/export';

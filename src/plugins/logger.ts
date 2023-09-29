@@ -14,6 +14,12 @@ export const logger = (prefix: string = '⚡'): FrameworkPlugin => {
                 const url = new URL(request.url);
 
                 console.log(`${prefix} ${request.method} - ${url.pathname} - ${code} - ${Date.now() - (request as any).logger.timestamp}ms`);
+            })
+            .registerError(async (request, error) => {
+                const url = new URL(request.url);
+                const code = convertStatusCode(error.code ?? 500);
+
+                console.error(`${prefix} ${request.method} - ${url.pathname} - ${code} - ${Date.now() - (request as any).logger.timestamp}ms - ${error.message}`);
             });
     }
 }

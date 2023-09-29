@@ -1,9 +1,8 @@
 import {TypeSystem} from "@sinclair/typebox/system";
 import {
-    type NumericOptions,
     ObjectOptions,
+    Static,
     type TNull,
-    TNumber,
     TObject,
     TProperties,
     type TSchema,
@@ -11,10 +10,11 @@ import {
     type TUnion,
     Type
 } from "@sinclair/typebox";
-import {type TypeCheck} from "@sinclair/typebox/compiler";
+import {type TypeCheck, TypeCompiler} from "@sinclair/typebox/compiler";
 import {addValidationFormats} from "./validation-formats";
 import {File, Files} from "./types";
 import {validateFile} from "./validate-file";
+import {Value} from "@sinclair/typebox/value";
 
 addValidationFormats();
 
@@ -115,6 +115,26 @@ Type.Files = (arg = {}) => ExtendedType.Files({
 Type.Nullable = (schema) => ExtendedType.Nullable(schema);
 Type.MaybeEmpty = ExtendedType.MaybeEmpty;
 
+export function CompileParse<T extends TSchema>(schema: T): (input: unknown) => Static<T> {
+    const check = TypeCompiler.Compile(schema);
+
+    return (input: unknown): Static<T> => {
+        const convert = Value.Convert(schema, input);
+        const checked = check.Check(convert);
+
+        if (checked) {
+            return convert;
+        }
+
+        const {
+            path,
+            message
+        } = check.Errors(input).First()!;
+
+        throw Error(`${path} ${message}`);
+    }
+}
+
 export {Type as t};
 export {
     type File,
@@ -124,7 +144,7 @@ export {
     type MaybeArray,
 } from './types';
 
-export  {
+export {
     convertToBytes,
     validateFile,
 } from './validate-file';

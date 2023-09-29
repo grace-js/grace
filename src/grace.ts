@@ -1,4 +1,3 @@
-import {Value} from "@sinclair/typebox/value";
 import {
     AfterRoute,
     AnyResponseSchema,
@@ -14,8 +13,10 @@ import {globSync} from "glob";
 import {FrameworkPlugin} from "./types/plugin";
 import {Server} from "bun";
 import {TSchema} from "@sinclair/typebox";
-import {getPath, getQueryParams} from "./utils/url";
+import {getPath, getQuery} from "./utils/url";
 import {Trie} from "route-trie";
+import fastQueryString from "fast-querystring";
+import {CompileParse} from "./types/typebox";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
@@ -92,6 +93,27 @@ export class Grace {
         }
 
         const path = route.path.replace(/\/+/g, '/');
+        route.compiledSchema = {};
+
+        if (route.schema?.body) {
+            route.compiledSchema.body = CompileParse(route.schema.body);
+        }
+
+        if (route.schema?.query) {
+            route.compiledSchema.query = CompileParse(route.schema.query);
+        }
+
+        if (route.schema?.params) {
+            route.compiledSchema.params = CompileParse(route.schema.params);
+        }
+
+        if (route.schema?.headers) {
+            try {
+                route.compiledSchema.headers = CompileParse(route.schema.headers as TSchema);
+            } catch (e) {
+                // Not a typebox schema
+            }
+        }
 
         this.debugLog(`📦 Registered route ${route.method} ${path}`);
 
@@ -245,16 +267,16 @@ export class Grace {
             const rawParameters = matched.params;
             let parameters: any = rawParameters;
 
-            if (route?.schema?.params) {
-                parameters = Value.Convert(route.schema.params, rawParameters);
-
-                if (!Value.Check(route.schema.params, parameters)) {
+            if (route?.compiledSchema?.params) {
+                try {
+                    parameters = route.compiledSchema.params(rawParameters);
+                } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
 
             let body: any;
-            const hasBody = route?.schema?.body != null;
+            const hasBody = route?.compiledSchema?.body != null;
 
             if (request.method !== 'GET') {
                 if (request.headers.get('Content-Type') === 'multipart/form-data') {
@@ -268,9 +290,9 @@ export class Grace {
                     }
 
                     if (hasBody) {
-                        body = Value.Convert(route!.schema!.body, rawBody);
-
-                        if (!Value.Check(route!.schema!.body, body)) {
+                        try {
+                            body = route!.compiledSchema!.body!(rawBody);
+                        } catch (e) {
                             throw new APIError(400, {message: 'Bad request'});
                         }
                     } else {
@@ -286,7 +308,7 @@ export class Grace {
 
                     if (hasBody) {
                         try {
-                            body = Value.Decode(route!.schema!.body, rawBody);
+                            body = route!.compiledSchema!.body!(rawBody);
                         } catch (e) {
                             throw new APIError(400, {message: 'Bad request'});
                         }
@@ -296,13 +318,13 @@ export class Grace {
                 }
             }
 
-            const rawQuery: Record<string, any> = getQueryParams(request.url);
+            const rawQuery: Record<string, any> = fastQueryString.parse(getQuery(request.url));
             let query: any = rawQuery;
 
-            if (route?.schema?.query) {
-                query = Value.Convert(route.schema.query, rawQuery);
-
-                if (!Value.Check(route.schema.query, query)) {
+            if (route?.compiledSchema?.query) {
+                try {
+                    query = route.compiledSchema.query!(rawQuery);
+                } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
@@ -314,10 +336,10 @@ export class Grace {
 
             let ctxHeaders: any = rawHeaders;
 
-            if (route?.schema?.headers) {
-                ctxHeaders = Value.Convert(route.schema.headers, rawHeaders);
-
-                if (!Value.Check(route.schema.headers, ctxHeaders)) {
+            if (route?.compiledSchema?.headers) {
+                try {
+                    ctxHeaders = route.compiledSchema.headers(rawHeaders);
+                } catch (e) {
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
