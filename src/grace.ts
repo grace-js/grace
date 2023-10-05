@@ -271,6 +271,7 @@ export class Grace {
                 try {
                     parameters = route.compiledSchema.params(rawParameters);
                 } catch (e) {
+                    console.error(e);
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
@@ -293,6 +294,7 @@ export class Grace {
                         try {
                             body = route!.compiledSchema!.body!(rawBody);
                         } catch (e) {
+                            console.error(e);
                             throw new APIError(400, {message: 'Bad request'});
                         }
                     } else {
@@ -310,6 +312,7 @@ export class Grace {
                         try {
                             body = route!.compiledSchema!.body!(rawBody);
                         } catch (e) {
+                            console.error(e);
                             throw new APIError(400, {message: 'Bad request'});
                         }
                     } else {
@@ -325,6 +328,7 @@ export class Grace {
                 try {
                     query = route.compiledSchema.query!(rawQuery);
                 } catch (e) {
+                    console.error(e);
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }
@@ -340,6 +344,7 @@ export class Grace {
                 try {
                     ctxHeaders = route.compiledSchema.headers(rawHeaders);
                 } catch (e) {
+                    console.error(e);
                     throw new APIError(400, {message: 'Bad request'});
                 }
             }

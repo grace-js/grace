@@ -131,7 +131,7 @@ export function CompileParse<T extends TSchema>(schema: T): (input: unknown) => 
             message
         } = check.Errors(input).First()!;
 
-        throw Error(`${path} ${message}`);
+        throw Error(`${path} ${message} ${JSON.stringify(input)}`);
     }
 }
 
