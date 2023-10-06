@@ -359,11 +359,17 @@ export class Grace {
             }
 
             try {
+                let response;
+
                 for (const before of route.before ?? []) {
-                    await before(context);
+                    if (!response) {
+                        response = await before(context);
+                    }
                 }
 
-                const response = await route.handler(context);
+                if (!response) {
+                    response = await route.handler(context);
+                }
 
                 if (response.headers) {
                     headers = {
