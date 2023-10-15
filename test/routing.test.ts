@@ -115,7 +115,7 @@ test('handle internally', async () => {
 
     const start = Date.now();
 
-    for (let i = 0; i < 1_000_000; i++) {
+    for (let i = 0; i < 10_000_000; i++) {
         const response =await app.handleInternally(new Request('http://localhost/id/1?name=owo', {
             method: 'GET'
         }));
@@ -150,7 +150,7 @@ test('handle', async () => {
 
     const start = Date.now();
 
-    for (let i = 0; i < 1_000_000; i++) {
+    for (let i = 0; i < 10_000_000; i++) {
         const response =await app.handle(new Request('http://localhost/id/1?name=owo', {
             method: 'GET'
         }));

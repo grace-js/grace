@@ -10,24 +10,19 @@ export function toOpenAPIPath(path: string) {
         .join('/');
 }
 
-function mapTypesResponse(
-    types: string[],
-    schema: | string | {
-        type: string
-        properties: Object
-        required: string[]
-    }) {
-    if (typeof schema === 'object' && ['void', 'undefined', 'null'].includes(schema.type)) {
-        return;
-    }
-
+function mapTypesResponse(types: string[], schema: TSchema) {
     const responses: Record<string, OpenAPIV3.MediaTypeObject> = {}
 
     for (const type of types) {
         responses[type] = {
-            schema: typeof schema === 'string' ? {
-                $ref: `#/components/schemas/${schema}`
-            } : {...(schema as any)}
+            schema: Object.entries(schema.properties).map(([key, value]) => ({
+                // @ts-ignore
+                ...value,
+                // @ts-ignore
+                type: value.type,
+                // @ts-ignore
+                required: schema.required?.includes(key) ?? false
+            })) as any
         }
     }
 
@@ -85,6 +80,7 @@ export function mapRoute(
     const querySchema = route.schema?.query;
     const paramsSchema = route.schema?.params;
     const headerSchema = route.schema?.headers;
+    const schemaResponse = route.schema?.response;
     let responseSchema = route.schema?.response as unknown as OpenAPIV3.ResponsesObject;
 
     if (typeof responseSchema === 'object') {
@@ -103,37 +99,10 @@ export function mapRoute(
             responseSchema = {
                 '200': {
                     ...rest,
-                    description: rest.description as any,
-                    content: mapTypesResponse(contentTypes, type === 'object' || type === 'array' ? ({
-                        type,
-                        properties,
-                        required
-                    } as any) : responseSchema)
+                    description: rest.description as any ?? 'Placeholder',
+                    content: mapTypesResponse(contentTypes, schemaResponse)
                 }
             }
-        } else {
-            Object.entries(responseSchema as Record<string, TSchema>).forEach(([key, value]) => {
-                const {
-                    type,
-                    properties,
-                    required,
-                    ...rest
-                } = value as typeof value & {
-                    type: string;
-                    properties: Object;
-                    required: string[];
-                }
-
-                responseSchema[key] = {
-                    ...rest,
-                    description: rest.description as any,
-                    content: mapTypesResponse(contentTypes, {
-                        type,
-                        properties,
-                        required
-                    })
-                }
-            })
         }
     }
 

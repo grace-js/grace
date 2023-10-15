@@ -6,40 +6,7 @@ import {Transaction} from "@sentry/node";
 export const sentry = (): FrameworkPlugin => {
     return (app) => {
         return app
-            .registerBefore(async (request) => {
-                const transaction = Sentry.startTransaction({name: new URL(request.url).pathname});
-
-                (request as any).sentry = {
-                    timestamp: Date.now(),
-                    transaction: transaction
-                }
-            })
-            .registerAfter(async (request, response) => {
-                try {
-                    const code = convertStatusCode(response.code);
-                    const time = Date.now() - (request as any).sentry.timestamp;
-                    const transaction: Transaction = (request as any).sentry.transaction;
-
-                    transaction.setMeasurement('time', time, 'ms');
-                    transaction.setHttpStatus(code);
-                    transaction.finish();
-                } catch (e) {
-                    console.error('Failed to finish transaction', e);
-                }
-            })
             .registerError(async (request, error) => {
-                try {
-                    const time = Date.now() - (request as any).sentry.timestamp;
-                    const transaction: Transaction = (request as any).sentry.transaction;
-
-                    transaction.setMeasurement('time', time, 'ms');
-                    transaction.setHttpStatus(500);
-                    transaction.setData('error', error);
-                    transaction.finish();
-                } catch (e) {
-                    console.error('Failed to finish transaction', e);
-                }
-
                 try {
                     const text = await request.clone().text();
 
