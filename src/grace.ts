@@ -220,8 +220,8 @@ export class Grace {
             return new Response(JSON.stringify(response.body), {
                 status: convertStatusCode(response.code),
                 headers: {
+                    'Content-Type': 'application/json',
                     ...response.headers,
-                    'Content-Type': 'application/json'
                 }
             });
         }
@@ -229,8 +229,8 @@ export class Grace {
         return new Response(response.body, {
             status: convertStatusCode(response.code),
             headers: {
+                'Content-Type': 'text/plain',
                 ...response.headers,
-                'Content-Type': 'text/plain'
             }
         });
     }
@@ -280,7 +280,7 @@ export class Grace {
             const hasBody = route?.compiledSchema?.body != null;
 
             if (request.method !== 'GET') {
-                if (request.headers.get('Content-Type') === 'multipart/form-data') {
+                if (request.headers.get('Content-Type')?.includes('multipart/form-data')) {
                     const formData = await request.formData();
                     const rawBody: {
                         [key: string]: any
@@ -294,8 +294,7 @@ export class Grace {
                         try {
                             body = route!.compiledSchema!.body!(rawBody);
                         } catch (e) {
-                            console.error(e);
-                            throw new APIError(400, {message: 'Bad request'});
+                            throw new APIError(400, {message: 'Bad request'}, e);
                         }
                     } else {
                         body = rawBody;
@@ -312,8 +311,7 @@ export class Grace {
                         try {
                             body = route!.compiledSchema!.body!(rawBody);
                         } catch (e) {
-                            console.error(e);
-                            throw new APIError(400, {message: 'Bad request'});
+                            throw new APIError(400, {message: 'Bad request'}, e);
                         }
                     } else {
                         body = rawBody;

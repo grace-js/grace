@@ -1,6 +1,6 @@
 import {Grace} from "../grace";
 import {OpenAPIV3} from "openapi-types";
-import {Kind, TSchema} from "@sinclair/typebox";
+import {TSchema} from "@sinclair/typebox";
 import {AnyRoute} from "../types";
 
 export function toOpenAPIPath(path: string) {
@@ -15,14 +15,7 @@ function mapTypesResponse(types: string[], schema: TSchema) {
 
     for (const type of types) {
         responses[type] = {
-            schema: Object.entries(schema.properties).map(([key, value]) => ({
-                // @ts-ignore
-                ...value,
-                // @ts-ignore
-                type: value.type,
-                // @ts-ignore
-                required: schema.required?.includes(key) ?? false
-            })) as any
+            schema: schema
         }
     }
 
@@ -80,29 +73,30 @@ export function mapRoute(
     const querySchema = route.schema?.query;
     const paramsSchema = route.schema?.params;
     const headerSchema = route.schema?.headers;
-    const schemaResponse = route.schema?.response;
     let responseSchema = route.schema?.response as unknown as OpenAPIV3.ResponsesObject;
 
     if (typeof responseSchema === 'object') {
-        if (Kind in responseSchema) {
-            const {
-                type,
-                properties,
-                required,
-                ...rest
-            } = responseSchema as typeof responseSchema & {
-                type: string;
-                properties: Object;
-                required: string[];
-            }
-
-            responseSchema = {
-                '200': {
-                    ...rest,
-                    description: rest.description as any ?? 'Placeholder',
-                    content: mapTypesResponse(contentTypes, schemaResponse)
+        try {
+            Object.entries(responseSchema as Record<string, TSchema>).forEach(([key, value]) => {
+                const {
+                    type,
+                    properties,
+                    required,
+                    ...rest
+                } = value as typeof value & {
+                    type: string;
+                    properties: Object;
+                    required: string[];
                 }
-            }
+
+                responseSchema[key] = {
+                    ...rest,
+                    description: rest.description as any,
+                    content: mapTypesResponse(contentTypes, value)
+                }
+            })
+        } catch (e) {
+            console.error(e);
         }
     }
 
