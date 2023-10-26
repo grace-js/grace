@@ -20,7 +20,11 @@ import {CompileParse} from "./types/typebox";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>
-} | void>;
+} | {
+    code: number,
+    body: any,
+    headers?: Record<string, string>
+}>;
 
 export type AfterRequest = (request: Request, response: any) => Promise<void>;
 
@@ -208,17 +212,25 @@ export class Grace {
 
     public async handle(request: Request): Promise<Response> {
         const response = await this.handleInternally(request);
+        const convertedStatusCode = convertStatusCode(response.code);
+
+        if (convertedStatusCode === 204) {
+            return new Response(undefined, {
+                status: convertedStatusCode,
+                headers: response.headers
+            });
+        }
 
         if (typeof response.body === 'object') {
             if (response.body instanceof Blob) {
                 return new Response(response.body, {
-                    status: convertStatusCode(response.code),
+                    status: convertedStatusCode,
                     headers: response.headers
                 });
             }
 
             return new Response(JSON.stringify(response.body), {
-                status: convertStatusCode(response.code),
+                status: convertedStatusCode,
                 headers: {
                     'Content-Type': 'application/json',
                     ...response.headers,
@@ -227,7 +239,7 @@ export class Grace {
         }
 
         return new Response(response.body, {
-            status: convertStatusCode(response.code),
+            status: convertedStatusCode,
             headers: {
                 'Content-Type': 'text/plain',
                 ...response.headers,
@@ -247,6 +259,14 @@ export class Grace {
                         ...headers,
                         ...result.headers
                     }
+                }
+
+                if ('code' in result) {
+                    for (const handler of this.after) {
+                        await handler(request, result);
+                    }
+
+                    return result as any;
                 }
             }
 
@@ -326,8 +346,7 @@ export class Grace {
                 try {
                     query = route.compiledSchema.query!(rawQuery);
                 } catch (e) {
-                    console.error(e);
-                    throw new APIError(400, {message: 'Bad request'});
+                    throw new APIError(400, {message: 'Bad request'}, e);
                 }
             }
 

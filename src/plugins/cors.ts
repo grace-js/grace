@@ -25,6 +25,21 @@ export const cors = (
 ): FrameworkPlugin => {
     return (app) => {
         return app.registerBefore(async (request) => {
+            if (request.method === 'OPTIONS') {
+                return {
+                    code: 204,
+                    body: null,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': methods,
+                        'Access-Control-Allow-Headers': allowedHeaders,
+                        'Access-Control-Expose-Headers': exposedHeaders,
+                        'Access-Control-Allow-Credentials': credentials ? 'true' : 'false',
+                        'Access-Control-Max-Age': maxAge.toString()
+                    }
+                }
+            }
+
             return {
                 headers: {
                     'Access-Control-Allow-Origin': '*',
