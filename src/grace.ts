@@ -250,6 +250,7 @@ export class Grace {
     public async handleInternally(request: Request): Promise<PossibleResponses<any>> {
         try {
             let headers: Record<string, string> = {};
+            let beforeResponse = null;
 
             for (const handler of this.before) {
                 const result = await handler(request);
@@ -262,12 +263,16 @@ export class Grace {
                 }
 
                 if (typeof result === 'object' && 'code' in result) {
-                    for (const handler of this.after) {
-                        await handler(request, result);
-                    }
-
-                    return result as any;
+                    beforeResponse = result;
                 }
+            }
+
+            if (beforeResponse) {
+                for (const handler of this.after) {
+                    await handler(request, beforeResponse);
+                }
+
+                return beforeResponse as any;
             }
 
             const pathname = getPath(request.url);
