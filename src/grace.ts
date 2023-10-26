@@ -24,7 +24,7 @@ export type BeforeRequest = (request: Request) => Promise<{
     code: number,
     body: any,
     headers?: Record<string, string>
-}>;
+} | void>;
 
 export type AfterRequest = (request: Request, response: any) => Promise<void>;
 
@@ -261,7 +261,7 @@ export class Grace {
                     }
                 }
 
-                if ('code' in result) {
+                if (typeof result === 'object' && 'code' in result) {
                     for (const handler of this.after) {
                         await handler(request, result);
                     }
