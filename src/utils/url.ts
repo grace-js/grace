@@ -1,41 +1,44 @@
 export const getPath = (url: string): string => {
-    const match = url.match(/^https?:\/\/[^/]+(\/[^?]*)/);
+  const match = url.match(/^https?:\/\/[^/]+(\/[^?]*)/);
 
-    return match ? match[1] : '';
-}
+  return match ? match[1] : "";
+};
 
 export const getQuery = (url: string): string => {
-    const match = url.match(/^[^?]+\?([^#]*)/);
+  const match = url.match(/^[^?]+\?([^#]*)/);
 
-    return match ? match[1] : '';
-}
+  return match ? match[1] : "";
+};
 
 export const getQueryParams = (url: string): Record<string, string> => {
-    const query = getQuery(url);
-    const params: Record<string, string> = {};
+  const query = getQuery(url);
+  const params: Record<string, string> = {};
 
-    if (!query) {
-        return params;
-    }
-
-    for (const param of query.split('&')) {
-        const [key, value] = param.split('=');
-        params[decodeURIComponent(key)] = decodeURIComponent(value);
-    }
-
+  if (!query) {
     return params;
-}
+  }
 
-export const getParams = (path: string, url: string): Record<string, string> => {
-    const params: Record<string, string> = {};
-    const pathParts = path.split('/');
-    const urlParts = url.split('/');
+  for (const param of query.split("&")) {
+    const [key, value] = param.split("=");
+    params[decodeURIComponent(key)] = decodeURIComponent(value);
+  }
 
-    for (let i = 0; i < pathParts.length; i++) {
-        if (pathParts[i].startsWith(':')) {
-            params[pathParts[i].substring(1)] = urlParts[i];
-        }
+  return params;
+};
+
+export const getParams = (
+  path: string,
+  url: string,
+): Record<string, string> => {
+  const params: Record<string, string> = {};
+  const pathParts = path.split("/");
+  const urlParts = url.split("/");
+
+  for (let i = 0; i < pathParts.length; i++) {
+    if (pathParts[i].startsWith(":")) {
+      params[pathParts[i].substring(1)] = urlParts[i];
     }
+  }
 
-    return params;
-}
+  return params;
+};

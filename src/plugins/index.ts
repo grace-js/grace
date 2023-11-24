@@ -1,11 +1,5 @@
-export {
-    cors
-} from "./cors";
+export { cors } from "./cors";
 
-export {
-    logger
-} from "./logger";
+export { logger } from "./logger";
 
-export {
-    sentry
-} from "./sentry";
+export { sentry } from "./sentry";

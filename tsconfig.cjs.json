@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "baseUrl": "./src",
-    "types": [
-      "bun-types"
-    ],
+    "types": ["bun-types"],
     "declaration": true,
     "outDir": "./dist/cjs",
     "esModuleInterop": true,
@@ -18,11 +13,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
