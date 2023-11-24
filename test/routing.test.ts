@@ -4,6 +4,8 @@ import { Type } from "@sinclair/typebox";
 import { createGrace, createRoute, t } from "src";
 import { Value } from "@sinclair/typebox/value";
 
+const ITERATIONS = 1_000_000;
+
 test("old routing speed", () => {
   const trie = new Trie();
 
@@ -15,7 +17,7 @@ test("old routing speed", () => {
 
   const start = Date.now();
 
-  for (let i = 0; i < 1_000_000; i++) {
+  for (let i = 0; i < ITERATIONS; i++) {
     const handler = trie
       .match("/" + Math.floor(Math.random() * 10000))
       .node?.getHandler("GET");
@@ -23,7 +25,7 @@ test("old routing speed", () => {
     expect(handler).toBe("owo");
   }
 
-  console.log("Old Trie Routing took " + (Date.now() - start) / 1_000_000);
+  console.log("Old Trie Routing took " + (Date.now() - start) / ITERATIONS);
 });
 
 //
@@ -72,7 +74,7 @@ test("typebox convert", () => {
 
   const start = Date.now();
 
-  for (let i = 0; i < 1_000_000; i++) {
+  for (let i = 0; i < ITERATIONS; i++) {
     const converted = Value.Convert(Schema, {
       name: "owo",
       age: "18",
@@ -88,7 +90,7 @@ test("typebox convert", () => {
     }
   }
 
-  console.log("Typebox convert took " + (Date.now() - start) / 1_000_000);
+  console.log("Typebox convert took " + (Date.now() - start) / ITERATIONS);
 });
 
 test("handle internally", async () => {
@@ -113,20 +115,20 @@ test("handle internally", async () => {
           body: c.params.id + " " + c.query.name,
         };
       },
-    })
+    }),
   );
 
   const start = Date.now();
 
-  for (let i = 0; i < 10_000_000; i++) {
+  for (let i = 0; i < ITERATIONS; i++) {
     const response = await app.handleInternally(
       new Request("http://localhost/id/1?name=owo", {
         method: "GET",
-      })
+      }),
     );
   }
 
-  console.log("Handle internally took " + (Date.now() - start) / 1_000_000);
+  console.log("Handle internally took " + (Date.now() - start) / ITERATIONS);
 });
 
 test("handle", async () => {
@@ -151,18 +153,18 @@ test("handle", async () => {
           body: c.params.id + " " + c.query.name,
         };
       },
-    })
+    }),
   );
 
   const start = Date.now();
 
-  for (let i = 0; i < 10_000_000; i++) {
+  for (let i = 0; i < ITERATIONS; i++) {
     const response = await app.handle(
       new Request("http://localhost/id/1?name=owo", {
         method: "GET",
-      })
+      }),
     );
   }
 
-  console.log("Handle internally took " + (Date.now() - start) / 1_000_000);
+  console.log("Handle internally took " + (Date.now() - start) / ITERATIONS);
 });

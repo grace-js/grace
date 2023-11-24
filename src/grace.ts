@@ -34,7 +34,7 @@ export type AfterRequest = (request: Request, response: any) => Promise<void>;
 
 export type ErrorRequest = (
   request: Request,
-  error: APIError
+  error: APIError,
 ) => Promise<PossibleResponses<any> | void>;
 
 export class Grace {
@@ -50,7 +50,7 @@ export class Grace {
       debug = false,
     }: {
       debug: boolean;
-    } = { debug: false }
+    } = { debug: false },
   ) {
     this.debug = debug;
   }
@@ -114,7 +114,7 @@ export class Grace {
       After,
       Headers,
       ContextExtras
-    >
+    >,
   ): Grace {
     this.routes.push(route);
 
@@ -144,7 +144,7 @@ export class Grace {
     if (route.schema?.headers) {
       try {
         route.compiledSchema.headers = CompileParse(
-          route.schema.headers as TSchema
+          route.schema.headers as TSchema,
         );
       } catch (e) {
         // Not a typebox schema
@@ -173,8 +173,8 @@ export class Grace {
           this.debugLog(
             `Registering route without glob ${pathname.replace(
               pathWithoutGlob,
-              ""
-            )}`
+              "",
+            )}`,
           );
 
           const extension = pathname
@@ -209,7 +209,7 @@ export class Grace {
 
           if (!method || !name) {
             throw new Error(
-              "Invalid route path" + pathname.replace(pathWithoutGlob, "")
+              "Invalid route path" + pathname.replace(pathWithoutGlob, ""),
             );
           }
 
@@ -230,7 +230,7 @@ export class Grace {
 
   public listen(
     port: number,
-    callback: () => void | Promise<void> = () => {}
+    callback: () => void | Promise<void> = () => {},
   ): Grace {
     const framework = this;
 
@@ -298,7 +298,7 @@ export class Grace {
   }
 
   public async handleInternally(
-    request: Request
+    request: Request,
   ): Promise<PossibleResponses<any>> {
     try {
       let headers: Record<string, string> = {};
@@ -398,7 +398,7 @@ export class Grace {
       }
 
       const rawQuery: Record<string, any> = fastQueryString.parse(
-        getQuery(request.url)
+        getQuery(request.url),
       );
       let query: any = rawQuery;
 
@@ -477,21 +477,21 @@ export class Grace {
 
       return await this.handleError(
         request,
-        new APIError(500, { message: "Internal server error" }, error)
+        new APIError(500, { message: "Internal server error" }, error),
       );
     }
   }
 
   private async handleError(
     request: Request,
-    error: APIError
+    error: APIError,
   ): Promise<PossibleResponses<any>> {
     if (this.error.length === 0) {
       if (error.code === 500 || typeof error.code !== "number") {
         console.error(
           `There was an error while handling a request: ${
             error.code ?? 500
-          } - ${error.message ?? "Internal server error"}`
+          } - ${error.message ?? "Internal server error"}`,
         );
       }
     }
@@ -524,7 +524,7 @@ export function createGrace(
     debug = false,
   }: {
     debug: boolean;
-  } = { debug: false }
+  } = { debug: false },
 ): Grace {
   return new Grace({ debug });
 }

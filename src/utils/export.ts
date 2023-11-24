@@ -10,6 +10,10 @@ export function toOpenAPIPath(path: string) {
     .join("/");
 }
 
+export function toOpenAPIPathV2(path: string) {
+  return path.replace(/\/:([^/]+)/g, "/{$1}");
+}
+
 function mapTypesResponse(types: string[], schema: TSchema) {
   const responses: Record<string, OpenAPIV3.MediaTypeObject> = {};
 
