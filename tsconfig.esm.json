@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "module": "ES2022",
     "moduleResolution": "node",
     "baseUrl": "./src",
-    "types": [
-      "bun-types"
-    ],
+    "types": ["bun-types"],
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "./dist",
@@ -20,11 +15,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
