@@ -1,0 +1,4 @@
+bun.lockb
+node_modules
+dist
+.idea
