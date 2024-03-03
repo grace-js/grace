@@ -1,4 +1,4 @@
-import {PossibleResponses, ResponseSchema} from "./response.js";
+import {AnyResponseSchema, PossibleResponses, ResponseSchema} from "./response.js";
 import {AfterRoute, BeforeRoute, ContextExtra} from "./middleware.js";
 import {ZodSchema} from "zod";
 
@@ -17,7 +17,7 @@ export type Route<
     Body,
     Query,
     Params,
-    Response extends ResponseSchema,
+    Response extends AnyResponseSchema,
     Before extends Array<BeforeRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
     After extends Array<AfterRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
     Headers = Record<string, string>,
@@ -48,7 +48,7 @@ export function createRoute<
     Query,
     Params,
     Headers,
-    Response extends ResponseSchema,
+    Response extends AnyResponseSchema,
     ContextExtras extends ContextExtra,
     Before extends Array<BeforeRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
     After extends Array<AfterRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
@@ -62,7 +62,7 @@ export function createRouteWithExtras<ContextExtras extends ContextExtra>() {
         Query,
         Params,
         Headers,
-        Response extends ResponseSchema,
+        Response extends AnyResponseSchema,
         Before extends Array<BeforeRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
         After extends Array<AfterRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
     >(route: Route<Body, Query, Params, Response, Before, After, Headers, ContextExtras>)
@@ -83,7 +83,7 @@ export function createRouteTemplate<ContextExtras extends ContextExtra>({
         query?: ZodSchema;
         params?: ZodSchema;
         headers?: ZodSchema | Record<string, string>;
-        response?: ResponseSchema;
+        response?: AnyResponseSchema;
     };
 } = {}) {
     return function <
@@ -91,7 +91,7 @@ export function createRouteTemplate<ContextExtras extends ContextExtra>({
         Query,
         Params,
         Headers,
-        Response extends ResponseSchema,
+        Response extends AnyResponseSchema,
         Before extends Array<BeforeRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
         After extends Array<AfterRoute<Route<Body, Query, Params, any, any, any, Headers, ContextExtras>>>,
     >(route: Route<Body, Query, Params, Response, Before, After, Headers, ContextExtras>):

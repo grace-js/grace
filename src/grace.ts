@@ -1,5 +1,5 @@
 import {APIError} from "./errors/error.js";
-import {HttpStatusCode, PossibleResponses} from "./routes/response.js";
+import {AnyResponseSchema, convertStatusCode, PossibleResponses} from "./routes/response.js";
 import {AnyRoute, Context} from "./routes/route.js";
 import {Router} from "./routers/router.js";
 import {GracePlugin} from "./plugins/plugin.js";
@@ -15,11 +15,11 @@ import * as fs from "node:fs";
 
 export type BeforeRequest = (request: Request) => Promise<{
     headers?: Record<string, string>;
-} | PossibleResponses | void>;
+} | PossibleResponses<AnyResponseSchema> | void>;
 
-export type AfterRequest = (request: Request, response: PossibleResponses) => Promise<void>;
+export type AfterRequest = (request: Request, response: PossibleResponses<AnyResponseSchema>) => Promise<void>;
 
-export type ErrorRequest = (request: Request, error: APIError) => Promise<PossibleResponses | void>;
+export type ErrorRequest = (request: Request, error: APIError) => Promise<PossibleResponses<AnyResponseSchema> | void>;
 
 export class Grace {
     public routes: AnyRoute[] = [];
@@ -82,9 +82,9 @@ export class Grace {
             throw new Error('No response was returned');
         }
 
-        if (response.code === 204) {
+        if (convertStatusCode(response.code) === 204) {
             return new Response(undefined, {
-                status: response.code,
+                status: convertStatusCode(response.code),
                 headers: response.headers
             });
         }
@@ -92,13 +92,13 @@ export class Grace {
         if (typeof response.body === 'object') {
             if ((response.body as any) instanceof Blob) {
                 return new Response(response.body, {
-                    status: response.code,
+                    status: convertStatusCode(response.code),
                     headers: response.headers
                 });
             }
 
             return new Response(JSON.stringify(response.body), {
-                status: response.code,
+                status: convertStatusCode(response.code),
                 headers: {
                     'Content-Type': 'application/json',
                     ...response.headers
@@ -107,7 +107,7 @@ export class Grace {
         }
 
         return new Response(response.body, {
-            status: response.code,
+            status: convertStatusCode(response.code),
             headers: {
                 'Content-Type': 'text/plain',
                 ...response.headers
@@ -123,7 +123,7 @@ export class Grace {
         this.adapter.close();
     }
 
-    public async handleInternally(request: Request): Promise<PossibleResponses> {
+    public async handleInternally(request: Request): Promise<PossibleResponses<AnyResponseSchema>> {
         try {
             let headers: Record<string, string> = {};
             let beforeResponse = null;
@@ -318,7 +318,7 @@ export class Grace {
         }
     }
 
-    private async handleError(request: Request, error: APIError): Promise<PossibleResponses> {
+    private async handleError(request: Request, error: APIError): Promise<PossibleResponses<AnyResponseSchema>> {
         if (this.error.length < 1) {
             console.error('There was an error while handling a request, but no error handlers were registered!');
             console.error(error.error ?? error);
@@ -333,11 +333,11 @@ export class Grace {
         }
 
         return {
-            code: (error.code ?? 500) as HttpStatusCode,
+            code: (error.code ?? 500),
             body: {
                 message: error.message ?? 'Internal Server Error'
             }
-        } as PossibleResponses;
+        } as PossibleResponses<AnyResponseSchema>;
     }
 
     private async registerRoutesAsync(path: string) {
@@ -390,6 +390,9 @@ export function createGrace({
                             }: {
     router?: Router;
     adapter?: Adapter;
+} = {
+    router: new TrieRouter(),
+    adapter: new NodeAdapter()
 }) {
     return new Grace(router, adapter);
 }

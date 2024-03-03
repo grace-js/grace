@@ -30,16 +30,13 @@ export {
 
 
 export type {
-    HttpStatusCode,
-    HttpStatusCodeStrings,
-    HttpStatusCodeUnion,
     ResponseSchema,
     PossibleResponses,
+    AnyResponseSchema
 } from "./routes/response.js";
 
 export {
     convertStatusCode,
-    assertStatusCode
 } from "./routes/response.js";
 
 export type {
