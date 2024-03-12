@@ -28,7 +28,7 @@ function createRequestFromIncomingMessage(req: IncomingMessage) {
     return new Request('https://a.aa' + (req.url!.startsWith('/') ? req.url! : ('/' + req.url!)), {
         method: req.method,
         headers: requestHeaders,
-        body: body
+        body: req.method !== 'GET' && req.method !== 'HEAD' ? body : undefined
     });
 }
 
