@@ -1,6 +1,6 @@
 {
   "name": "@grace-js/grace",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "An opinionated API framework",
   "type": "module",
   "main": "./dist/cjs/index.js",
