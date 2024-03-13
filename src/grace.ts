@@ -341,9 +341,13 @@ export class Grace {
     }
 
     private async registerRoutesAsync(path: string) {
-        const pathWithoutGlob = path.replace(/\*\.?\w*\*?/g, '');
+        const pathWithoutGlob = path.replace(/\*\.?\w*\*?/g, '').replace('//', '/');
 
         for (const pathname of globSync(path)) {
+            if (!pathname.endsWith('.js') && !pathname.endsWith('.ts')) {
+                continue;
+            }
+
             const route = await import(pathname);
 
             if (route.default && route.default.handler) {

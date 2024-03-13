@@ -90,3 +90,11 @@ export {
     Grace,
     createGrace
 } from "./grace.js";
+
+export {
+    logger
+} from "./plugins/logger.js";
+
+export {
+    cors
+} from "./plugins/cors.js";
