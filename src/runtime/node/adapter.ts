@@ -51,7 +51,25 @@ export class NodeAdapter implements Adapter {
             const response = await grace.fetch(request);
 
             res.writeHead(response.status, convertWebHeadersToNodeHeaders(response.headers));
-            res.end(response.body);
+
+            const reader = response.body?.getReader();
+            const chunks = [];
+
+            while (reader) {
+                const {
+                    done,
+                    value
+                } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                chunks.push(value);
+            }
+
+            const combined = new Uint8Array(chunks.reduce((acc, val) => acc.concat(Array.from(val)), [] as number[]));
+            res.end(combined);
         });
 
         this.server.listen(port);
