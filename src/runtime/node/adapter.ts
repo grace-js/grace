@@ -2,33 +2,41 @@ import {Adapter} from "../adapter.js";
 import {Grace} from "../../grace.js";
 import {IncomingMessage, OutgoingHttpHeaders, Server} from "node:http";
 
-function createRequestFromIncomingMessage(req: IncomingMessage) {
-    const requestHeaders = new Headers();
-    let body: any = [];
-    Object.entries(req.headers).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-            requestHeaders.append(key, value);
-        }
+async function createRequestFromIncomingMessage(req: IncomingMessage, verbose: boolean): Promise<Request> {
+    return new Promise((resolve, reject) => {
+        const requestHeaders = new Headers();
+        let body: any = [];
+        Object.entries(req.headers).forEach(([key, value]) => {
+            if (typeof value === 'string') {
+                requestHeaders.append(key, value);
+            }
 
-        if (Array.isArray(value)) {
-            value.forEach((v) => {
-                requestHeaders.append(key, v);
-            });
-        }
-    });
-
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-        req.on('data', (chunk) => {
-            body.push(chunk)
-        }).on('end', async () => {
-            body = Buffer.concat(body);
+            if (Array.isArray(value)) {
+                value.forEach((v) => {
+                    requestHeaders.append(key, v);
+                });
+            }
         });
-    }
 
-    return new Request('https://a.aa' + (req.url!.startsWith('/') ? req.url! : ('/' + req.url!)), {
-        method: req.method,
-        headers: requestHeaders,
-        body: req.method !== 'GET' && req.method !== 'HEAD' ? body : undefined
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+            req.on('data', (chunk) => {
+                body.push(chunk)
+            }).on('end', async () => {
+                body = Buffer.concat(body);
+
+                resolve(new Request('https://a.aa' + (req.url!.startsWith('/') ? req.url! : ('/' + req.url!)), {
+                    method: req.method,
+                    headers: requestHeaders,
+                    body: body
+                }));
+            });
+        } else {
+            resolve(new Request('https://a.aa' + (req.url!.startsWith('/') ? req.url! : ('/' + req.url!)), {
+                method: req.method,
+                headers: requestHeaders,
+                body: undefined
+            }));
+        }
     });
 }
 
@@ -47,7 +55,7 @@ export class NodeAdapter implements Adapter {
 
     listen(grace: Grace, port: number): void {
         this.server = new Server(async (req, res) => {
-            const request = createRequestFromIncomingMessage(req);
+            const request = await createRequestFromIncomingMessage(req, grace.verbose);
             const response = await grace.fetch(request);
 
             res.writeHead(response.status, convertWebHeadersToNodeHeaders(response.headers));

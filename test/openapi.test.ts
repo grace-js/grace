@@ -3,9 +3,12 @@ import {z} from "zod";
 
 const grace = createGrace()
     .registerRoute({
-        method: "GET",
+        method: "POST",
         path: "/hello",
         schema: {
+            body: z.object({
+                name: z.string()
+            }),
             response: {
                 200: z.object({
                     message: z.string()
@@ -24,3 +27,14 @@ const grace = createGrace()
             }
         }
     });
+
+it('should return the correct response', async () => {
+    const response = await grace.fetch(new Request('http://localhost:3000/hello', {
+        method: 'POST',
+        body: JSON.stringify({
+            name: 'Alessandro'
+        })
+    }));
+
+    console.log(await response.json());
+});

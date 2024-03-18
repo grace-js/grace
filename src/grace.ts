@@ -28,10 +28,12 @@ export class Grace {
     public error: ErrorRequest[] = [];
     private readonly router: Router;
     private readonly adapter: Adapter;
+    public readonly verbose: boolean;
 
-    constructor(router: Router, adapter: Adapter) {
+    constructor(router: Router, adapter: Adapter, verbose: boolean = false) {
         this.router = router;
         this.adapter = adapter;
+        this.verbose = verbose;
     }
 
     public registerPlugin(plugin: GracePlugin): Grace {
@@ -165,7 +167,6 @@ export class Grace {
 
             const route = matched.route;
             const rawParameters = matched.params;
-            ;
             let parameters: any = rawParameters;
 
             if (route.schema?.params) {
@@ -185,7 +186,7 @@ export class Grace {
 
             if (request.method !== 'GET') {
                 if (request.headers.get('content-type')?.includes('multipart/form-data')) {
-                    const formData = await request.formData();
+                    const formData = await request.clone().formData();
                     const rawBody: Record<string, any> = {};
 
                     formData.forEach((value, key) => {
@@ -209,13 +210,16 @@ export class Grace {
                     let rawBody: any = null;
 
                     try {
-                        rawBody = await request.json();
+                        rawBody = await request.clone().json();
                     } catch {
                     }
+
+                    console.log('Raw Body', rawBody);
 
                     if (hasBody) {
                         try {
                             body = await route.schema!.body!.parseAsync(rawBody);
+                            console.log('Body', body);
                         } catch (e: unknown) {
                             if (e instanceof ZodError) {
                                 throw new APIError(400, {message: 'Bad Request: ' + e.message}, e);
@@ -390,13 +394,16 @@ export class Grace {
 
 export function createGrace({
                                 router = new TrieRouter(),
-                                adapter = new NodeAdapter()
+                                adapter = new NodeAdapter(),
+                                verbose = false
                             }: {
     router?: Router;
     adapter?: Adapter;
+    verbose?: boolean;
 } = {
     router: new TrieRouter(),
-    adapter: new NodeAdapter()
+    adapter: new NodeAdapter(),
+    verbose: false
 }) {
-    return new Grace(router, adapter);
+    return new Grace(router, adapter, verbose);
 }
