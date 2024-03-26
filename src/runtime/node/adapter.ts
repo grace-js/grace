@@ -1,6 +1,7 @@
 import {Adapter} from "../adapter.js";
 import {Grace} from "../../grace.js";
 import {IncomingMessage, OutgoingHttpHeaders, Server} from "node:http";
+import {IP_HEADERS} from "../../utils/headers.js";
 
 async function createRequestFromIncomingMessage(req: IncomingMessage, verbose: boolean): Promise<Request> {
     return new Promise((resolve, reject) => {
@@ -17,6 +18,10 @@ async function createRequestFromIncomingMessage(req: IncomingMessage, verbose: b
                 });
             }
         });
+
+        if (req.socket.remoteAddress) {
+            requestHeaders.append('Grace-Client-IP', req.socket.remoteAddress);
+        }
 
         if (req.method !== 'GET' && req.method !== 'HEAD') {
             req.on('data', (chunk) => {
@@ -81,6 +86,16 @@ export class NodeAdapter implements Adapter {
         });
 
         this.server.listen(port);
+    }
+
+    getRequestIp(request: Request): string | null {
+        for (const header of IP_HEADERS) {
+            if (request.headers.has(header)) {
+                return request.headers.get(header)!;
+            }
+        }
+
+        return null;
     }
 
     close(): void {

@@ -27,7 +27,7 @@ export class Grace {
     public after: AfterRequest[] = [];
     public error: ErrorRequest[] = [];
     private readonly router: Router;
-    private readonly adapter: Adapter;
+    public readonly adapter: Adapter;
     public readonly verbose: boolean;
 
     constructor(router: Router, adapter: Adapter, verbose: boolean = false) {
