@@ -91,7 +91,13 @@ export class NodeAdapter implements Adapter {
     getRequestIp(request: Request): string | null {
         for (const header of IP_HEADERS) {
             if (request.headers.has(header)) {
-                return request.headers.get(header)!;
+                const h = request.headers.get(header)!;
+
+                if (h.includes(',')) {
+                    return h.split(',')[0];
+                }
+
+                return h;
             }
         }
 
