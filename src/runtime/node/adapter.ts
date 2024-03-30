@@ -23,11 +23,23 @@ async function createRequestFromIncomingMessage(req: IncomingMessage, verbose: b
             requestHeaders.append('Grace-Client-IP', req.socket.remoteAddress);
         }
 
+        if (verbose) {
+            console.log('Incoming request', req.url, req.method, requestHeaders);
+        }
+
         if (req.method !== 'GET' && req.method !== 'HEAD') {
             req.on('data', (chunk) => {
-                body.push(chunk)
+                body.push(chunk);
+
+                if (verbose) {
+                    console.log('Chunk', chunk);
+                }
             }).on('end', async () => {
                 body = Buffer.concat(body);
+
+                if (verbose) {
+                    console.log('Body', body);
+                }
 
                 resolve(new Request('https://a.aa' + (req.url!.startsWith('/') ? req.url! : ('/' + req.url!)), {
                     method: req.method,

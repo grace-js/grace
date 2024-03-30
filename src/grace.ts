@@ -211,7 +211,10 @@ export class Grace {
 
                     try {
                         rawBody = await request.clone().json();
-                    } catch {
+                    } catch (e) {
+                        if (request.headers.get('content-type')?.includes('application/json')) {
+                            throw new APIError(400, {message: 'Bad Request: Request body is not JSON:\n' + await request.clone().text()}, e);
+                        }
                     }
 
                     console.log('Raw Body', rawBody);
