@@ -276,7 +276,8 @@ export class Grace {
                 query,
                 params: parameters,
                 headers: ctxHeaders,
-                extras: {}
+                extras: {},
+                app: this
             };
 
             try {

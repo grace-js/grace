@@ -25,7 +25,8 @@ export type {
 
 export {
     createBeforeRoute,
-    createAfterRoute
+    createAfterRoute,
+    rateLimitRoute
 } from "./routes/middleware.js";
 
 
@@ -98,3 +99,8 @@ export {
 export {
     cors
 } from "./plugins/cors.js";
+
+export {
+    rateLimit,
+    RateLimitOptions
+} from "./plugins/rate-limit.js";

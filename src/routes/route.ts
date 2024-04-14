@@ -1,6 +1,7 @@
-import {AnyResponseSchema, PossibleResponses, ResponseSchema} from "./response.js";
+import {AnyResponseSchema, PossibleResponses} from "./response.js";
 import {AfterRoute, BeforeRoute, ContextExtra} from "./middleware.js";
 import {ZodSchema} from "zod";
+import {Grace} from "../grace.js";
 
 export type Context<Body = any, Query = Record<string, string>, Params = Record<string, string>, Headers = Record<string, string>, Extras = Record<string, unknown>> =
     {
@@ -10,6 +11,7 @@ export type Context<Body = any, Query = Record<string, string>, Params = Record<
         params: Params;
         headers: Headers;
         extras: Extras;
+        app: Grace;
     }
     & Extras;
 

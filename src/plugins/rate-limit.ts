@@ -1,7 +1,7 @@
 import {GracePlugin} from "./plugin.js";
 import {APIError} from "../errors/error.js";
 
-interface RateLimitOptions {
+export interface RateLimitOptions {
     windowMs: number;
     max: number;
     message?: string;
