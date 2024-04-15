@@ -1,6 +1,5 @@
 import {AnyRoute, InferContext, Route as RouteSchema} from "./route.js";
 import {RateLimitOptions} from "../plugins/rate-limit.js";
-import {APIError} from "../errors/error.js";
 
 export type ContextExtra = any;
 export type BeforeRoute<Route extends AnyRoute> = (context: InferContext<Route>) => Promise<any | void>;
@@ -54,9 +53,12 @@ export function rateLimitRoute({
         }
 
         if (timestamps.length >= max) {
-            throw new APIError(statusCode ?? 429, {
-                message: message ?? 'Too many requests'
-            });
+            return {
+                statusCode: statusCode ?? 429,
+                body: {
+                    message: message ?? 'Too many requests'
+                }
+            };
         }
 
         timestamps.push(now);
