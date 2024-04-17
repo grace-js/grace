@@ -348,7 +348,7 @@ export class Grace {
         } as PossibleResponses<AnyResponseSchema>;
     }
 
-    private async registerRoutesAsync(path: string) {
+    public async registerRoutesAsync(path: string) {
         const pathWithoutGlob = path.replace(/\*\.?\w*\*?/g, '').replace('//', '/');
 
         for (const pathname of globSync(path)) {

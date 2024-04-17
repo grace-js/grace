@@ -54,7 +54,7 @@ export function rateLimitRoute({
 
         if (timestamps.length >= max) {
             return {
-                statusCode: statusCode ?? 429,
+                code: statusCode ?? 429,
                 body: {
                     message: message ?? 'Too many requests'
                 }

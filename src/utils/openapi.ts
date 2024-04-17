@@ -4,10 +4,9 @@ import {Grace} from "../grace.js";
 import {ZodObject, ZodSchema} from "zod";
 
 function zodSchemaToOpenAPISchemaObject(zodSchema: ZodSchema<any>): OpenAPIV3.SchemaObject {
-    const jsonSchema = zodToJsonSchema(zodSchema, 'jsonSchema7');
-    delete jsonSchema.$schema;
+    const jsonSchema = zodToJsonSchema(zodSchema, 'mySchema');
 
-    return jsonSchema as OpenAPIV3.SchemaObject;
+    return jsonSchema.definitions!.mySchema as OpenAPIV3.SchemaObject;
 }
 
 function graceToOpenAPISpec(grace: Grace): OpenAPIV3.Document {
@@ -95,4 +94,4 @@ function graceToOpenAPISpec(grace: Grace): OpenAPIV3.Document {
     };
 }
 
-export { graceToOpenAPISpec };
+export {graceToOpenAPISpec};
